@@ -11,6 +11,7 @@ specific use cases."""
 import os, sys, csv, numpy, gdal, math, glob
 from gdalconst import *
 
+
 def csv2list(file):
     # Returns an imported csv as a list
     return list(csv.reader(open(file,"rU")))
@@ -47,7 +48,7 @@ def extract_kernel_and_coords(spec_ds,x,y,width,height,band,transform):
         return [-9999]
     this_band = spec_ds.GetRasterBand(band)
     specs = this_band.ReadAsArray(xoffset, yoffset, width, height)
-    return specs, all_coords
+    return specs, all_coords 
 
 def list2csv(filepath,arg):
     # exports a list to a csv
@@ -76,6 +77,14 @@ def sixDigitTSA(pathrow):
         else:
             sys.exit("Provide TSA of form PPRR e.g. 4529")
     return pathrow
+    
+def findTSA(tsa_ref_mask, x_coord, y_coord):
+    '''returns 6-digit Landsat scene as string for given coordinates'''
+    ds = gdal.Open(tsa_ref_mask)
+    transform = ds.GetGeoTransform()
+    tsa = extract_kernel(ds, x_coord, y_coord, 1, 1, 1, transform)[0][0]
+    
+    return sixDigitTSA(tsa)
 
 def fourDigitTSA(pathrow):
     # call to convert to four digit version to look up TSA in plots table
